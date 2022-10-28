@@ -1,23 +1,44 @@
 import requests
-from pprint import pprint 
+
+#functions ~6 
+
+url = 'https://api.coindesk.com/v1/bpi/currentprice.json'
+
+def main(): 
+    bitcoin = get_bitcoin_amount()
+    dollars = convert_b_to_d(bitcoin)
+    display_results(bitcoin, dollars)
 
 
-try:
-    coindesk_url = 'https://api.coindesk.com/v1/bpi/currentprice.json'
+def get_bitcoin_amount():
+    while True:
+        try:
+            bitcoin = float(input('Enter the number of bitcoin: '))
+            if bitcoin >= 0:
+                return bitcoin
+            else:
+                print(' Please enter a number greater than 0')
+        except ValueError:
+            print('Enter a positive number.')
+
+
+def convert_b_to_d(bitcoin):
+    rate_json = get_b_data()   
+    exchange_rate = extract_rate(rate_json)
     
-    response = requests.get(coindesk_url)
-    data = response.json()  
-    pprint(data)
+    bitcoin = exchange_rate * bitcoin
+    return bitcoin
 
-    dollars_exchange_rate = data['bpi'] ['USD']['rate_float']  #getting objects from the website 
-    print(dollars_exchange_rate)
+def get_b_data():
+    return requests.get(url).json()
 
-    bitcoin = float(input('Enter the amount of bitcoin you have: '))
+def extract_rate(rate_json):
+    return rate_json['bpi']['USD']['rate_float']
 
-    bitcoin_value_USD = bitcoin * dollars_exchange_rate
+def display_results(bitcoin, dollars):
+    print(f'{bitcoin} bitcoin is equal to ${dollars}')
 
-    print(f'Your {bitcoin} is equal to ${bitcoin_value_USD} in USD')
 
-except Exception as e: 
-    print(e)
-    print('There was an error making the request')
+
+if __name__ == '__main__':
+    main()
